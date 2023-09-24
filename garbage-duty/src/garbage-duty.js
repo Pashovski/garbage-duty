@@ -13,6 +13,8 @@ class GarbageDuty extends LitElement {
       padding: 20px;
     }
     garbage-calendar {
+      flex: 1;
+      height: 300px;
     }
 
     h1 {
@@ -24,12 +26,23 @@ class GarbageDuty extends LitElement {
       margin: 10px 0;
       font-size: 1.2em;
     }
+
+    .light {
+      background: white;
+      color: black;
+    }
+
+    .dark {
+      background: black;
+      color: white;
+    }
   `;
 
   static properties = {
     members: { type: Array },
     currentDate: { type: Object },
     weeksAhead: { type: Number }, // Add this line
+    theme: { type: String },
   };
 
   constructor() {
@@ -37,6 +50,7 @@ class GarbageDuty extends LitElement {
     this.members = ['Alice', 'Bob', 'Charlie', 'David'];
     this.currentDate = new Date();
     this.weeksAhead = 0;
+    this.theme = 'light';
   }
 
   getNextMember() {
@@ -54,18 +68,32 @@ class GarbageDuty extends LitElement {
     this.requestUpdate();
   }
 
+  toggleTheme() {
+    this.theme = this.theme === 'light' ? 'dark' : 'light';
+  }
+
   render() {
+    const themeClass = {
+      light: this.theme === 'light',
+      dark: this.theme === 'dark',
+    };
+
     return html`
-      <h1>Garbage Duty</h1>
-      <div>for</div>
-      <div>
-        ${new Date(
-          this.currentDate.getTime() + this.weeksAhead * 7 * 24 * 60 * 60 * 1000
-        ).toDateString()}
+      <div class=${this.theme}>
+        <button @click=${this.toggleTheme}>Toggle Theme</button>
+        <h1>Garbage Duty</h1>
+        <div>for</div>
+        <div>
+          ${new Date(
+            this.currentDate.getTime() +
+              this.weeksAhead * 7 * 24 * 60 * 60 * 1000
+          ).toDateString()}
+        </div>
+        <div>${this.getNextMember()}</div>
+        <button @click=${this.advanceWeek}>Next Week</button>
+        <garbage-calendar .theme=${this.theme}></garbage-calendar>
+        <div></div>
       </div>
-      <div>${this.getNextMember()}</div>
-      <button @click=${this.advanceWeek}>Next Week</button>
-      <garbage-calendar></garbage-calendar>
     `;
   }
 }
