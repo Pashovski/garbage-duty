@@ -1,4 +1,5 @@
 import { LitElement, html, css } from 'lit';
+import './garbage-calendar';
 
 const logo = new URL('../assets/open-wc-logo.svg', import.meta.url).href;
 
@@ -6,9 +7,12 @@ class GarbageDuty extends LitElement {
   static styles = css`
     :host {
       display: block;
+      height: 100vh;
       font-family: 'Arial', sans-serif;
       text-align: center;
       padding: 20px;
+    }
+    garbage-calendar {
     }
 
     h1 {
@@ -61,6 +65,7 @@ class GarbageDuty extends LitElement {
       </div>
       <div>${this.getNextMember()}</div>
       <button @click=${this.advanceWeek}>Next Week</button>
+      <garbage-calendar></garbage-calendar>
     `;
   }
 }
