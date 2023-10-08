@@ -6,7 +6,11 @@ const logo = new URL('../assets/open-wc-logo.svg', import.meta.url).href;
 class GarbageDuty extends LitElement {
   static styles = css`
     :host {
+      @apply --light-theme;
+      background: var(--background);
+      color: var(--text);
       display: block;
+      min-height: 100vh;
       height: 100vh;
       font-family: 'Arial', sans-serif;
       text-align: center;
@@ -27,14 +31,18 @@ class GarbageDuty extends LitElement {
       font-size: 1.2em;
     }
 
-    .light {
-      background: white;
-      color: black;
+    body.light {
+      --light-theme: {
+        --background: white;
+        --text: black;
+      }
     }
 
-    .dark {
-      background: black;
-      color: white;
+    body.dark {
+      --dark-theme: {
+        --background: black;
+        --text: white;
+      }
     }
   `;
 
@@ -43,14 +51,31 @@ class GarbageDuty extends LitElement {
     currentDate: { type: Object },
     weeksAhead: { type: Number }, // Add this line
     theme: { type: String },
+    themeCSS: {
+      type: String,
+      reflect: true,
+    },
   };
 
   constructor() {
     super();
     this.members = ['Alice', 'Bob', 'Charlie', 'David'];
-    this.currentDate = new Date();
+    this.currentDate = new Date(2023, 10, 1);
     this.weeksAhead = 0;
     this.theme = 'light';
+  }
+
+  updated(changedProperties) {
+    if (changedProperties.has('themeCSS')) {
+      document.body.style.setProperty(
+        '--background',
+        this.theme === 'light' ? 'white' : 'black'
+      );
+      document.body.style.setProperty(
+        '--text',
+        this.theme === 'light' ? 'black' : 'white'
+      );
+    }
   }
 
   getNextMember() {
@@ -67,12 +92,27 @@ class GarbageDuty extends LitElement {
     this.weeksAhead++;
     this.requestUpdate();
   }
+  advanceMonth() {
+    // Advance currentDate by 1 month
+    this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+
+    this.requestUpdate();
+  }
 
   toggleTheme() {
-    this.theme = this.theme === 'light' ? 'dark' : 'light';
+    if (this.theme === 'light') {
+      this.theme = 'dark';
+    } else {
+      this.theme = 'light';
+    }
+
+    this.themeCSS = this.theme === 'light' ? '--light-theme' : '--dark-theme';
   }
 
   render() {
+    const memberNames = Array.from({ length: 6 }, (_, weekIndex) =>
+      this.getNextMember(weekIndex)
+    ); // Calculate member names for each week
     const themeClass = {
       light: this.theme === 'light',
       dark: this.theme === 'dark',
@@ -91,7 +131,14 @@ class GarbageDuty extends LitElement {
         </div>
         <div>${this.getNextMember()}</div>
         <button @click=${this.advanceWeek}>Next Week</button>
-        <garbage-calendar .theme=${this.theme}></garbage-calendar>
+        <button @click=${this.advanceMonth}>Next Month</button>
+        <garbage-calendar
+        .currentDate=${this.currentDate}  // Add this line
+          .theme=${this.theme}
+          .background=${this.theme === 'light' ? 'white' : 'black'}
+          .text=${this.theme === 'light' ? 'black' : 'white'}
+        >
+        </garbage-calendar>
         <div></div>
       </div>
     `;

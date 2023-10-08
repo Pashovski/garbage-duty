@@ -3,10 +3,14 @@ import { classMap } from 'lit/directives/class-map.js';
 
 class GarbageCalendar extends LitElement {
   static properties = {
-    theme: { type: String },
+    background: { type: String },
+    text: { type: String },
+    currentDate: { type: Object },
   };
   static styles = css`
     :host {
+      background: var(--background);
+    color: var(--text);
       display: block;
       width: 80%;
       height: 100%;
@@ -15,7 +19,7 @@ class GarbageCalendar extends LitElement {
 
     table {
       width: 100%;
-      height: 100%cu
+      height: 100%
       border-collapse: collapse;
     }
 
@@ -34,38 +38,53 @@ class GarbageCalendar extends LitElement {
   `;
 
   render() {
-    const currentDate = new Date();
-    const firstDayOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth(),
-      1
-    );
-    const lastDayOfMonth = new Date(
-      currentDate.getFullYear(),
-      currentDate.getMonth() + 1,
-      0
-    );
-    const daysInMonth = lastDayOfMonth.getDate();
-
     const themeClass = {
       light: this.theme === 'light',
       dark: this.theme === 'dark',
     };
+
+    const firstDayOfMonth = new Date(
+      this.currentDate.getFullYear(),
+      this.currentDate.getMonth(),
+      1
+    );
+    const lastDayOfPrevMonth = new Date(
+      this.currentDate.getFullYear(),
+      this.currentDate.getMonth(),
+      0
+    );
+    const daysInPrevMonth = lastDayOfPrevMonth.getDate();
+    const firstDayOfWeek = firstDayOfMonth.getDay();
+    const lastDayOfMonth = new Date(
+      this.currentDate.getFullYear(),
+      this.currentDate.getMonth() + 1,
+      0
+    );
+    const daysInMonth = lastDayOfMonth.getDate();
+
     const days = [];
     let day = 1;
-    const firstDayOfWeek = firstDayOfMonth.getDay();
-    for (let i = 0; i < 5; i++) {
+    let prevMonthDay = daysInPrevMonth - firstDayOfWeek + 1;
+    let nextMonthDay = 1;
+    for (let i = 0; i < 6; i++) {
       // Assume max 6 weeks in a month
       const week = [];
       for (let j = 0; j < 7; j++) {
-        if ((i === 0 && j < firstDayOfWeek) || day > daysInMonth) {
-          week.push(''); // Empty day cell
+        if (i === 0 && j < firstDayOfWeek) {
+          // Fill in ending days of the previous month
+          week.push(prevMonthDay++);
+        } else if (day > daysInMonth) {
+          // Corrected condition
+          // Fill in beginning days of the next month
+          week.push(nextMonthDay++);
         } else {
+          // Current month's days
           week.push(day++);
         }
       }
       days.push(week);
     }
+
     return html`
       <div class=${classMap(themeClass)}>
         <table>
