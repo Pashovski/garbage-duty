@@ -6,6 +6,8 @@ class GarbageCalendar extends LitElement {
     background: { type: String },
     text: { type: String },
     currentDate: { type: Object },
+    members: { type: Array },
+    weeksAhead: { type: Number },
   };
   static styles = css`
     :host {
@@ -36,6 +38,16 @@ class GarbageCalendar extends LitElement {
       display: table-row;
     }
   `;
+
+  getMemberForWeek(weekIndex) {
+    const weekOfYear = Math.floor(
+      (this.currentDate -
+        new Date(this.currentDate.getFullYear(), 0, 1) +
+        (this.weeksAhead + weekIndex) * 7 * 24 * 60 * 60 * 1000) /
+        604800000
+    );
+    return this.members[weekOfYear % this.members.length];
+  }
 
   render() {
     const themeClass = {
@@ -98,9 +110,18 @@ class GarbageCalendar extends LitElement {
             <td>Sat</td>
           </tr>
           ${days.map(
-            week => html`
+            (week, weekIndex) => html`
               <tr>
-                ${week.map(day => html` <td>${day}</td> `)}
+                ${week.map(
+                  (day, dayIndex) => html`
+                    <td>
+                      ${day}
+                      ${dayIndex === 2 || dayIndex === 5
+                        ? html` <div>${this.getMemberForWeek(weekIndex)}</div> `
+                        : ''}
+                    </td>
+                  `
+                )}
               </tr>
             `
           )}

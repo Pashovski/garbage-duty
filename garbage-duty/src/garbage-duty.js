@@ -134,6 +134,8 @@ class GarbageDuty extends LitElement {
         <button @click=${this.advanceMonth}>Next Month</button>
         <garbage-calendar
         .currentDate=${this.currentDate}  // Add this line
+        .members=${this.members}
+        .weeksAhead=${this.weeksAhead}
           .theme=${this.theme}
           .background=${this.theme === 'light' ? 'white' : 'black'}
           .text=${this.theme === 'light' ? 'black' : 'white'}
